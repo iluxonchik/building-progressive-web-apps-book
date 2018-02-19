@@ -1,36 +1,16 @@
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/serviceworker.js").then(function(registration) {
-    console.log("Service Worker registered with scope:", registration.scope);
-  }).catch(function(err) {
-    console.log("Service Worker registration failed:", err);
-  });
-}
-
 $(document).ready(function() {
   // Fetch and render upcoming events in the hotel
   $.getJSON("/events.json", renderEvents);
-
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.addEventListener("message", function (event) {
-      var data = event.data;
-      if (data.action === "navigate") {
-        window.location.href = data.url;
-      } else if (data.action === "update-reservation") {
-        updateReservationDisplay(data.reservation);
-      }
-    });
-    $("#logout-button").click(function(event) {
-      if (navigator.serviceWorker.controller) {
-        event.preventDefault();
-        navigator.serviceWorker.controller.postMessage(
-          {action: "logout"}
-        );
-      }
-    });
-  }
 });
 
-
+if ("serviceWorker" in navigator) { // make sure that the browser supports service workers (Progressive Enhancement)
+  navigator.serviceWorker.register("/serviceworker.js") // ".register()" call returns a promise...
+    .then(function(registration){ // ... if the promise is fulfilled, the funciton defined in the ".then()" statement is called
+      console.log("Service worker registered with scope:", registration.scope);
+    }).catch(function(err) { // ... if the promise is not fulfilled, then function in ".catch()" is called
+      console.log("Service worker registration failed:", err);
+    });
+}
 
 
 /* ************************************************************ */
