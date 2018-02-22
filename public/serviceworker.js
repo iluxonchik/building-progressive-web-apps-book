@@ -36,10 +36,7 @@ var responseContent = "<html>" +
 self.addEventListener("fetch", function(event){
   event.respondWith(
     fetch(event.request).catch(function() {
-      return new Response(
-        responseContent,
-        {headers: {"Content-Type":"text/html"}}
-      );
+      return caches.match("./index-offline.html");
     })
   );
 });
@@ -47,7 +44,17 @@ self.addEventListener("fetch", function(event){
 self.addEventListener("install", function(event) {
     event.waitUntil(
         caches.open("gih-cache").then(function(cache) {
-            return cache.add("./index-offline.html");
+            // cache.add() returns a promise
+            return cache.add("./index-offline.html").then(function (){
+                return cache.add(
+                    "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css");
+                }).then(function (){
+                    return cache.add("/css/gih-offline.css");
+                }).then(function() {
+                    return cache.add("/img/jumbo-background-sm.jpg");
+                }).then(function() {
+                    return cache.add("/img/logo-header.png");
+            });
         })
     );
 });
