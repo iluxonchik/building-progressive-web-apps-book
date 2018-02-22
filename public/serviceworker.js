@@ -41,20 +41,20 @@ self.addEventListener("fetch", function(event){
   );
 });
 
+
+var CACHE_NAME = "gih-cache";
+var CACHED_URLS = [
+    "./index-offline.html",
+    "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css",
+    "/css/gih-offline.css",
+    "/img/jumbo-background-sm.jpg",
+    "/img/logo-header.png"
+];
+
 self.addEventListener("install", function(event) {
     event.waitUntil(
-        caches.open("gih-cache").then(function(cache) {
-            // cache.add() returns a promise
-            return cache.add("./index-offline.html").then(function (){
-                return cache.add(
-                    "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css");
-                }).then(function (){
-                    return cache.add("/css/gih-offline.css");
-                }).then(function() {
-                    return cache.add("/img/jumbo-background-sm.jpg");
-                }).then(function() {
-                    return cache.add("/img/logo-header.png");
-            });
-        })
-    );
+        caches.open(CACHE_NAME).then(function(cache) {
+            // cache.add() and cache.addAll() return a promise
+            cache.addAll(CACHED_URLS);
+    }));
 });
