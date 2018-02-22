@@ -36,7 +36,18 @@ var responseContent = "<html>" +
 self.addEventListener("fetch", function(event){
   event.respondWith(
     fetch(event.request).catch(function() {
-      return caches.match("./index-offline.html");
+        return caches.match(event.request).then(function(response) {
+            if (response) {
+                // match in cache found
+                return response;
+            } else if (event.request.headers.get("accept").includes("text/html")) {
+                // the user never explicitly asks for "index-offline.html"
+                // What this does is returns the "offline page" as a respone to
+                // any HTML page request (but **only** HTML page requests and
+                // not things like images, that have not been cached)
+                return caches.match("./index-offline.html");
+            }
+        });
     })
   );
 });
@@ -55,6 +66,7 @@ self.addEventListener("install", function(event) {
     event.waitUntil(
         caches.open(CACHE_NAME).then(function(cache) {
             // cache.add() and cache.addAll() return a promise
+            // cache.addAll() promise fails if any of the add's fails
             cache.addAll(CACHED_URLS);
     }));
 });
